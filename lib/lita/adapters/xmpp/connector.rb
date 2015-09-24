@@ -58,6 +58,9 @@ module Lita
             Lita.logger.debug("Sending message to JID #{user_jid}: #{s}")
             message = Jabber::Message.new(user_jid, s)
             message.type = :chat
+            if s.include?('<') && s.include?('>')
+              message.set_xhtml_body(s)
+            end
             client.send(message)
           end
         end
@@ -69,8 +72,13 @@ module Lita
               muc.send(strings)
             else
               strings.each do |s|
+                message = Jabber::Message.new(nil, s)
+                message.type = :groupchat
+                if s.include?('<') && s.include?('>')
+                  message.set_xhtml_body(s)
+                end
                 Lita.logger.debug("Sending message to MUC #{room_jid}: #{s}")
-                muc.say(s)
+                muc.send(message)
               end
             end
           end
