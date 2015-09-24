@@ -47,6 +47,15 @@ module Lita
           end
         end
 
+        def part_rooms(muc_domain, rooms)
+          rooms.each do |room_name|
+            room_jid = normalized_jid(room_name, muc_domain.dup, robot.name).bare.to_s
+            muc = mucs[room_jid]
+            Lita.logger.info("Leaving room: #{room_jid}.")
+            muc.exit(room_jid)
+          end
+        end
+
         def list_rooms(muc_domain)
           Lita.logger.debug("Querying server for list of rooms.")
           browser = Jabber::MUC::MUCBrowser.new(client)
@@ -58,6 +67,9 @@ module Lita
             Lita.logger.debug("Sending message to JID #{user_jid}: #{s}")
             message = Jabber::Message.new(user_jid, s)
             message.type = :chat
+            if s.include?('<') && s.include?('>')
+              message.set_xhtml_body(s)
+            end
             client.send(message)
           end
         end
@@ -69,8 +81,13 @@ module Lita
               muc.send(strings)
             else
               strings.each do |s|
+                message = Jabber::Message.new(nil, s)
+                message.type = :groupchat
+                if s.include?('<') && s.include?('>')
+                  message.set_xhtml_body(s)
+                end
                 Lita.logger.debug("Sending message to MUC #{room_jid}: #{s}")
-                muc.say(s)
+                muc.send(message)
               end
             end
           end
