@@ -47,6 +47,15 @@ module Lita
           end
         end
 
+        def part_rooms(muc_domain, rooms)
+          rooms.each do |room_name|
+            room_jid = normalized_jid(room_name, muc_domain.dup, robot.name).bare.to_s
+            muc = mucs[room_jid]
+            Lita.logger.info("Leaving room: #{room_jid}.")
+            muc.exit(room_jid)
+          end
+        end
+
         def list_rooms(muc_domain)
           Lita.logger.debug("Querying server for list of rooms.")
           browser = Jabber::MUC::MUCBrowser.new(client)

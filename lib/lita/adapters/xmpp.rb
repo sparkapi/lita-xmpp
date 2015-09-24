@@ -33,6 +33,14 @@ module Lita
         shut_down
       end
 
+      def join(room_id)
+        connector.join_rooms(config.muc_domain, Array(room_id))
+      end
+
+      def part(room_id)
+        connector.part_rooms(config.muc_domain, Array(room_id))
+      end
+
       def send_messages(target, strings)
         if target.room
           connector.message_muc(target.room, strings)
