@@ -67,8 +67,12 @@ module Lita
             Lita.logger.debug("Sending message to JID #{user_jid}: #{s}")
             message = Jabber::Message.new(user_jid, s)
             message.type = :chat
-            if s.include?('<') && s.include?('>')
-              message.set_xhtml_body(s)
+            begin
+              b = REXML::Document.new("<root>#{s}</root>")
+              message.xhtml_body=s
+            rescue REXML::ParseException
+              # Not valid xhtml
+              message.body=s
             end
             client.send(message)
           end
@@ -81,10 +85,14 @@ module Lita
               muc.send(strings)
             else
               strings.each do |s|
-                message = Jabber::Message.new(nil, s)
+                message = Jabber::Message.new(nil)
                 message.type = :groupchat
-                if s.include?('<') && s.include?('>')
-                  message.set_xhtml_body(s)
+                begin
+                  b = REXML::Document.new("<root>#{s}</root>")
+                  message.xhtml_body=s
+                rescue REXML::ParseException
+                  # Not valid xhtml
+                  message.body=s
                 end
                 Lita.logger.debug("Sending message to MUC #{room_jid}: #{s}")
                 muc.send(message)
