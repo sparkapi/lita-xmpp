@@ -68,8 +68,15 @@ module Lita
             message = Jabber::Message.new(user_jid, s)
             message.type = :chat
             begin
-              b = REXML::Document.new("<root>#{s}</root>")
-              message.xhtml_body=s
+              b = REXML::Document.new("#{s}")
+              if b.root
+                # Has xhtml children
+                Lita.logger.debug("Rich-text stream -- size: #{b.root.size}; elements size: #{b.root.elements.size}")
+                message.xhtml_body=s
+              else
+                # Plain text? No xhtml children in doc
+                message.body=s
+              end
             rescue REXML::ParseException
               # Not valid xhtml
               message.body=s
@@ -85,16 +92,23 @@ module Lita
               muc.send(strings)
             else
               strings.each do |s|
+                Lita.logger.debug("Sending message to MUC #{room_jid}: #{s}")
                 message = Jabber::Message.new(nil)
                 message.type = :groupchat
                 begin
-                  b = REXML::Document.new("<root>#{s}</root>")
-                  message.xhtml_body=s
+                  b = REXML::Document.new("#{s}")
+                  if b.root
+                    # Has xhtml children
+                    Lita.logger.debug("Rich-text stream -- size: #{b.root.size}; elements size: #{b.root.elements.size}")
+                    message.xhtml_body=s
+                  else
+                    # Plain text? No xhtml children in doc
+                    message.body=s
+                  end
                 rescue REXML::ParseException
                   # Not valid xhtml
                   message.body=s
                 end
-                Lita.logger.debug("Sending message to MUC #{room_jid}: #{s}")
                 muc.send(message)
               end
             end
