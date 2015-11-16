@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-xmpp"
-  spec.version       = "1.2.0"
+  spec.version       = "1.2.1"
   spec.authors       = ["Justin Mazzi"]
   spec.email         = ["jmazzi@gmail.com"]
   spec.description   = %q{A XMPP adapter for Lita.}

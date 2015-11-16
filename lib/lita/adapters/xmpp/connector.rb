@@ -68,8 +68,8 @@ module Lita
             message = Jabber::Message.new(user_jid, s)
             message.type = :chat
             begin
-              b = REXML::Document.new("#{s}")
-              if b.root
+              b = REXML::Document.new("<root>#{s}</root>")
+              if b.root and b.root.elements.size > 0
                 # Has xhtml children
                 Lita.logger.debug("Rich-text stream -- size: #{b.root.size}; elements size: #{b.root.elements.size}")
                 message.xhtml_body=s
@@ -96,8 +96,8 @@ module Lita
                 message = Jabber::Message.new(nil)
                 message.type = :groupchat
                 begin
-                  b = REXML::Document.new("#{s}")
-                  if b.root
+                  b = REXML::Document.new("<root>#{s}</root>")
+                  if b.root and b.root.elements.size > 0
                     # Has xhtml children
                     Lita.logger.debug("Rich-text stream -- size: #{b.root.size}; elements size: #{b.root.elements.size}")
                     message.xhtml_body=s
